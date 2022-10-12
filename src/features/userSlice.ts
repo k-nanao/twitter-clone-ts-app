@@ -1,12 +1,13 @@
 import { createSlice } from '@reduxjs/toolkit';
 import { RootState } from '../app/store';
 
+const initialState = {
+  user: { uid: '', photoUrl: '', displayName: '' },
+};
+
 export const userSlice = createSlice({
   name: 'user',
-  initialState: {
-    user: { uid: '', photoUrl: '', displayName: '' },
-  },
-
+  initialState,
   reducers: {
     login: (state, action) => {
       state.user = action.payload;

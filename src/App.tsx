@@ -9,6 +9,7 @@ const App: React.FC = () => {
   const dispatch = useDispatch();
 
   useEffect(() => {
+    //firebaseのユーザーに対して変化があった時に呼び出される関数
     const unSub = auth.onAuthStateChanged((authUser) => {
       if (authUser) {
         dispatch(
@@ -24,7 +25,10 @@ const App: React.FC = () => {
         dispatch(logout());
       }
     });
-  });
+    return () => {
+      unSub();
+    };
+  }, [dispatch]);
   return <div className='App'></div>;
 };
 
