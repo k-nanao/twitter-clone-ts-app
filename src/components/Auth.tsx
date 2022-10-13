@@ -20,6 +20,7 @@ import SendIcon from '@material-ui/icons/Send';
 import CameraIcon from '@material-ui/icons/Camera';
 import EmailIcon from '@material-ui/icons/Email';
 import AccountCircleIcon from '@material-ui/icons/AccountCircle';
+import { updateUserProfile } from '../features/userSlice';
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -57,12 +58,28 @@ const useStyles = makeStyles((theme) => ({
 
 const Auth: React.FC = () => {
   const classes = useStyles();
+  const dispatch = useDispatch();
 
   //メールとパスワードの機能
   const [email, setEmail] = useState<string>('');
   const [password, setPassWord] = useState<string>('');
+  //ユーザーが入力したユーザーネームを格納
+  const [username, setUsername] = useState<string>('');
+  //ユーザーが設定したアバター画像を格納
+  const [avatarImage, setAvatarImage] = useState<File | null>(null);
   //ログイン、レジスターモード(アカウントをまだ持っていない)
   const [isLogin, setLogin] = useState<boolean>(true);
+
+  //ユーザーが画像を選択した時に実行される関数
+  const onChangeImageHandler = (e: React.ChangeEvent<HTMLInputElement>) => {
+    //配列内で選択された画像データのみを
+    //nonnullable アサーション。tsのコンパイラーにnull or undifinedではないことを明記。オブジェクトがnullである可能性のものにアクセスできないように
+    if (e.target.files![0]) {
+      setAvatarImage(e.target.files![0]);
+      //連続して同じ画像ファイルがが選択されると反応しない仕様になっているが、反応できるように初期化している
+      e.target.value = '';
+    }
+  };
 
   //サインインする時に実行される関数
   const signInEmail = async () => {
@@ -71,7 +88,34 @@ const Auth: React.FC = () => {
 
   //サインアップ時に実行される関数
   const signUpEmail = async () => {
-    await auth.createUserWithEmailAndPassword(email, password);
+    const authUser = await auth.createUserWithEmailAndPassword(email, password);
+    //firebaseのcloudstorageに保存された時に識別URL
+    let url = '';
+    if (avatarImage) {
+      const S =
+        'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+      const N = 16;
+      const randomChar = Array.from(crypto.getRandomValues(new Uint32Array(N)))
+        .map((n) => S[n % S.length])
+        //0-61の生成された文字列をjoin関数で結合させて
+        .join('');
+      //ユニークなファイル名を作っている。
+      const fileName = randomChar + '_' + avatarImage.name;
+      //フォルダの階層を指定してstorageに保存。
+      await storage.ref(`avatars/${fileName}`).put(avatarImage);
+      //保存した画像のurlを取得
+      url = await storage.ref('avatars').child(fileName).getDownloadURL();
+    }
+    await authUser.user?.updateProfile({
+      displayName: username,
+      photoURL: url,
+    });
+    dispatch(
+      updateUserProfile({
+        displayName: username,
+        photoUrl: url,
+      })
+    );
   };
 
   //Googleサインイン機能
@@ -169,7 +213,7 @@ const Auth: React.FC = () => {
               <Grid item xs>
                 <span className={styles.login_reset}>forgot password?</span>
               </Grid>
-              <Grid item xs>
+              <Grid item>
                 {/* ログインとレジスターモードの切り替えをトグルする */}
                 <span
                   className={styles.login_toggleMode}
