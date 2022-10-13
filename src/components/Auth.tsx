@@ -58,8 +58,44 @@ const useStyles = makeStyles((theme) => ({
 const Auth: React.FC = () => {
   const classes = useStyles();
 
+  //メールとパスワードの機能
+  const [email, setEmail] = useState<string>('');
+  const [password, setPassWord] = useState<string>('');
+  //ログイン、レジスターモード(アカウントをまだ持っていない)
+  const [isLogin, setLogin] = useState<boolean>(true);
+
+  //サインインする時に実行される関数
+  const signInEmail = async () => {
+    await auth.signInWithEmailAndPassword(email, password);
+  };
+
+  //サインアップ時に実行される関数
+  const signUpEmail = async () => {
+    await auth.createUserWithEmailAndPassword(email, password);
+  };
+
+  //Googleサインイン機能
   const signInGoogle = async () => {
     await auth.signInWithPopup(provider).catch((e) => alert(e.message));
+  };
+
+  //ログインモードとレジスターモードの表示文字を変更する関数
+  const handleLogin = () => {
+    setLogin(!isLogin);
+  };
+
+  //メール欄に打ち込まれる文字を読み込む関数
+  const handleEmailChange = (
+    e: React.ChangeEvent<HTMLTextAreaElement | HTMLInputElement>
+  ) => {
+    setEmail(e.target.value);
+  };
+
+  //パスワード欄に打ち込まれる文字を読み込む関数
+  const handlePasswordChange = (
+    e: React.ChangeEvent<HTMLTextAreaElement | HTMLInputElement>
+  ) => {
+    setPassWord(e.target.value);
   };
 
   return (
@@ -72,7 +108,7 @@ const Auth: React.FC = () => {
             <LockOutlinedIcon />
           </Avatar>
           <Typography component='h1' variant='h5'>
-            Sign in
+            {isLogin ? 'Login' : 'Register'}
           </Typography>
           <form className={classes.form} noValidate>
             <TextField
@@ -85,6 +121,8 @@ const Auth: React.FC = () => {
               name='email'
               autoComplete='email'
               autoFocus
+              value={email}
+              onChange={(e) => handleEmailChange(e)}
             />
             <TextField
               variant='outlined'
@@ -96,16 +134,51 @@ const Auth: React.FC = () => {
               type='password'
               id='password'
               autoComplete='current-password'
+              value={password}
+              onChange={(e) => handlePasswordChange(e)}
             />
             <Button
-              type='submit'
               fullWidth
               variant='contained'
               color='primary'
               className={classes.submit}
+              startIcon={<EmailIcon />}
+              onClick={
+                isLogin
+                  ? //ログインモード
+                    async () => {
+                      try {
+                        await signInEmail();
+                      } catch (err: any) {
+                        alert(err.message);
+                      }
+                    }
+                  : //レジスターモード
+                    async () => {
+                      try {
+                        await signUpEmail();
+                      } catch (err: any) {
+                        alert(err.message);
+                      }
+                    }
+              }
             >
-              Sign In
+              {isLogin ? 'Login' : 'Register'}
             </Button>
+            <Grid container>
+              <Grid item xs>
+                <span className={styles.login_reset}>forgot password?</span>
+              </Grid>
+              <Grid item xs>
+                {/* ログインとレジスターモードの切り替えをトグルする */}
+                <span
+                  className={styles.login_toggleMode}
+                  onClick={() => handleLogin()}
+                >
+                  {isLogin ? 'Create new account ?' : 'Back to login'}
+                </span>
+              </Grid>
+            </Grid>
             <Button
               fullWidth
               variant='contained'
