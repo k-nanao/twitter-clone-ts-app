@@ -2,7 +2,9 @@ import React, { useEffect } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { selectUser, login, logout } from './features/userSlice';
 import { auth } from './firebase';
-import './App.module.css';
+import styles from './App.module.css';
+import Feed from './components/Feed';
+import Auth from './components/Auth';
 
 const App: React.FC = () => {
   const user = useSelector(selectUser);
@@ -29,7 +31,17 @@ const App: React.FC = () => {
       unSub();
     };
   }, [dispatch]);
-  return <div className='App'></div>;
+  return (
+    <>
+      {user.uid ? (
+        <div className={styles.app}>
+          <Feed />
+        </div>
+      ) : (
+        <Auth />
+      )}
+    </>
+  );
 };
 
 export default App;
