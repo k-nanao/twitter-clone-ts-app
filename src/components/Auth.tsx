@@ -21,10 +21,31 @@ import CameraIcon from '@material-ui/icons/Camera';
 import EmailIcon from '@material-ui/icons/Email';
 import AccountCircleIcon from '@material-ui/icons/AccountCircle';
 import { updateUserProfile } from '../features/userSlice';
+import { IconButton, Modal } from '@material-ui/core';
+
+const getModalStyle = () => {
+  const top = 50;
+  const left = 50;
+
+  return {
+    top: `${top}%`,
+    left: `${left}%`,
+    transform: `translate(-${top}%,-${left}%)`,
+  };
+};
 
 const useStyles = makeStyles((theme) => ({
   root: {
     height: '100vh',
+  },
+  modal: {
+    outline: 'none',
+    position: 'absolute',
+    width: 400,
+    borderRadius: 10,
+    backgroundColor: 'white',
+    boxShadow: theme.shadows[5],
+    padding: theme.spacing(10),
   },
   image: {
     backgroundImage:
@@ -69,6 +90,24 @@ const Auth: React.FC = () => {
   const [avatarImage, setAvatarImage] = useState<File | null>(null);
   //ログイン、レジスターモード(アカウントをまだ持っていない)
   const [isLogin, setLogin] = useState<boolean>(true);
+  //モーダルを制御
+  const [openModal, setOpenModal] = React.useState<boolean>(false);
+  //リセットパスワードを保持するための
+  const [resetEmail, setResetEmail] = useState<string>('');
+
+  //パスワード理説とする時に実行される関数
+  const sendResetEmail = async (e: React.MouseEvent<HTMLElement>) => {
+    await auth
+      .sendPasswordResetEmail(resetEmail)
+      .then(() => {
+        setOpenModal(false);
+        setResetEmail('');
+      })
+      .catch((err) => {
+        alert(err.message);
+        setResetEmail('');
+      });
+  };
 
   //ユーザーが画像を選択した時に実行される関数
   const onChangeImageHandler = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -142,6 +181,12 @@ const Auth: React.FC = () => {
     setPassWord(e.target.value);
   };
 
+  const handleUsernameChange = (
+    e: React.ChangeEvent<HTMLTextAreaElement | HTMLInputElement>
+  ) => {
+    setUsername(e.target.value);
+  };
+
   return (
     <Grid container component='main' className={classes.root}>
       <CssBaseline />
@@ -155,6 +200,42 @@ const Auth: React.FC = () => {
             {isLogin ? 'Login' : 'Register'}
           </Typography>
           <form className={classes.form} noValidate>
+            {!isLogin && (
+              <>
+                <TextField
+                  variant='outlined'
+                  margin='normal'
+                  required
+                  fullWidth
+                  id='username'
+                  label='username'
+                  name='username'
+                  autoComplete='username'
+                  autoFocus
+                  value={username}
+                  onChange={(e) => handleUsernameChange(e)}
+                />
+                <Box className={styles.box}>
+                  <IconButton>
+                    <label>
+                      <AccountCircleIcon
+                        fontSize='large'
+                        className={
+                          avatarImage
+                            ? styles.login_addIconLoaded
+                            : styles.ogin_addIcon
+                        }
+                      />
+                      <input
+                        type='file'
+                        className={styles.login_hiddenIcon}
+                        onChange={onChangeImageHandler}
+                      />
+                    </label>
+                  </IconButton>
+                </Box>
+              </>
+            )}
             <TextField
               variant='outlined'
               margin='normal'
@@ -181,7 +262,13 @@ const Auth: React.FC = () => {
               value={password}
               onChange={(e) => handlePasswordChange(e)}
             />
+            {/* disabledはログインモードとregisterモードで条件を指定しておる */}
             <Button
+              disabled={
+                isLogin
+                  ? !email || password.length < 6
+                  : !username || !email || password.length < 6 || !avatarImage
+              }
               fullWidth
               variant='contained'
               color='primary'
@@ -211,7 +298,12 @@ const Auth: React.FC = () => {
             </Button>
             <Grid container>
               <Grid item xs>
-                <span className={styles.login_reset}>forgot password?</span>
+                <span
+                  className={styles.login_reset}
+                  onClick={() => setOpenModal(true)}
+                >
+                  forgot password?
+                </span>
               </Grid>
               <Grid item>
                 {/* ログインとレジスターモードの切り替えをトグルする */}
@@ -227,12 +319,34 @@ const Auth: React.FC = () => {
               fullWidth
               variant='contained'
               color='primary'
+              startIcon={<CameraIcon />}
               className={classes.submit}
               onClick={signInGoogle}
             >
               SignIn with Google
             </Button>
           </form>
+          <Modal open={openModal} onClose={() => setOpenModal(false)}>
+            <div style={getModalStyle()} className={classes.modal}>
+              <div className={styles.login_modal}>
+                <TextField
+                  InputLabelProps={{
+                    shrink: true,
+                  }}
+                  type='email'
+                  name='email'
+                  label='Reset E-mail'
+                  value={resetEmail}
+                  onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+                    setResetEmail(e.target.value);
+                  }}
+                />
+                <IconButton onClick={sendResetEmail}>
+                  <SendIcon />
+                </IconButton>
+              </div>
+            </div>
+          </Modal>
         </div>
       </Grid>
     </Grid>
