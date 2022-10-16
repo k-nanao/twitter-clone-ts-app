@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import styles from './Feed.module.css';
 import { db } from '../firebase';
 import TweetInput from './TweetInput';
+import Post from './Post';
 
 const Feed: React.FC = () => {
   const [posts, setPosts] = useState([
@@ -36,6 +37,22 @@ const Feed: React.FC = () => {
   return (
     <div className={styles.feed}>
       <TweetInput />
+
+      {posts[0]?.id && (
+        <>
+          {posts.map((post) => (
+            <Post
+              key={post.id}
+              postId={post.id}
+              avatar={post.avatar}
+              image={post.image}
+              text={post.text}
+              timestamp={post.timestamp}
+              username={post.username}
+            />
+          ))}
+        </>
+      )}
     </div>
   );
 };

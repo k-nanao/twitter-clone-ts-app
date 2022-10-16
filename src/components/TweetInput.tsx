@@ -6,8 +6,6 @@ import { auth, storage, db } from '../firebase';
 import { Avatar, Button, IconButton } from '@material-ui/core';
 import firebase from 'firebase/app';
 import AddaPhotoIcon from '@material-ui/icons/AddAPhoto';
-import { NullLiteral } from 'typescript';
-import { url } from 'inspector';
 
 const TweetInput: React.FC = () => {
   const user = useSelector(selectUser);
