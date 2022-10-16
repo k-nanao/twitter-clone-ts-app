@@ -21,14 +21,16 @@ const Feed: React.FC = () => {
       .collection('posts')
       .orderBy('timestamp', 'desc')
       .onSnapshot((snapshot) => {
-        snapshot.docs.map((doc) => ({
-          id: doc.id,
-          avatar: doc.data().avatar,
-          image: doc.data().image,
-          text: doc.data().text,
-          timestamp: doc.data().timestamp,
-          username: doc.data().username,
-        }));
+        setPosts(
+          snapshot.docs.map((doc) => ({
+            id: doc.id,
+            avatar: doc.data().avatar,
+            image: doc.data().image,
+            text: doc.data().text,
+            timestamp: doc.data().timestamp,
+            username: doc.data().username,
+          }))
+        );
       });
     return () => {
       unSub();

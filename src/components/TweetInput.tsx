@@ -57,7 +57,7 @@ const TweetInput: React.FC = () => {
               await db.collection('posts').add({
                 //追加するオブジェクトの内容を定義
                 avatar: user.photoUrl,
-                Image: url,
+                image: url,
                 text: tweetMsg,
                 timestamp: firebase.firestore.FieldValue.serverTimestamp(),
                 username: user.displayName,
