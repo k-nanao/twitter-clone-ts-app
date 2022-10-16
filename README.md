@@ -44,14 +44,4 @@ You don’t have to ever use `eject`. The curated feature set is suitable for sm
 You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
 
 To learn React, check out the [React documentation](https://reactjs.org/).
-# twitter-clone-react-typescript-redux-app
-# twitter-clone-react-typescript-redux-app
-# twitter-clone-app
-# twitter-clone-app
-# twitter-clone-app
-# twitter-clone-app
-# twitter-clone-app
-# twitter-clone-ts-react-app
-# twitter-clone-typescript-react-app
-# twitter-clone-app
-# twitter-clone-ts-app
+
