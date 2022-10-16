@@ -1,13 +1,41 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import styles from './Feed.module.css';
-import { auth } from '../firebase';
+import { db } from '../firebase';
 import TweetInput from './TweetInput';
 
-const Feed = () => {
+const Feed: React.FC = () => {
+  const [posts, setPosts] = useState([
+    {
+      id: '',
+      avatar: '',
+      image: '',
+      text: '',
+      timestamp: null,
+      username: '',
+    },
+  ]);
+
+  useEffect(() => {
+    const unSub = db
+      .collection('posts')
+      .orderBy('timestamp', 'desc')
+      .onSnapshot((snapshot) => {
+        snapshot.docs.map((doc) => ({
+          id: doc.id,
+          avatar: doc.data().avatar,
+          image: doc.data().image,
+          text: doc.data().text,
+          timestamp: doc.data().timestamp,
+          username: doc.data().username,
+        }));
+      });
+    return () => {
+      unSub();
+    };
+  }, []);
   return (
     <div className={styles.feed}>
       <TweetInput />
-      <button onClick={() => auth.signOut()}>Logout</button>
     </div>
   );
 };

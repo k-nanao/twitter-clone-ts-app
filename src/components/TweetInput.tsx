@@ -9,7 +9,7 @@ import AddaPhotoIcon from '@material-ui/icons/AddAPhoto';
 import { NullLiteral } from 'typescript';
 import { url } from 'inspector';
 
-const TweetInput = () => {
+const TweetInput: React.FC = () => {
   const user = useSelector(selectUser);
   //ツイートのメッセージを格納
   const [tweetMsg, setTweetMsg] = useState<string>('');
