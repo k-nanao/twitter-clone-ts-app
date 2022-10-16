@@ -24,7 +24,26 @@ const Post: React.FC<PROPS> = (props) => {
       <div className={styles.post_avatar}>
         <Avatar src={props.avatar} />
       </div>
-      <div className={styles.post_body}></div>
+      <div className={styles.post_body}>
+        <div>
+          <div className={styles.post_header}>
+            <h3>
+              <span className={styles.post_headerUser}>@{props.username}</span>
+              <span className={styles.post_headerTime}>
+                {new Date(props.timestamp?.toDate()).toLocaleString()}
+              </span>
+            </h3>
+          </div>
+          <div className={styles.post_tweet}>
+            <p>{props.text}</p>
+          </div>
+        </div>
+      </div>
+      {props.image && (
+        <div className={styles.post_tweetImage}>
+          <img src={props.image} alt='tweet' />
+        </div>
+      )}
     </div>
   );
 };
